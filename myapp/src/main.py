@@ -11,8 +11,18 @@ app = FastAPI(
 )
 
 
+async def get_client_by_name(name: str, session: AsyncSession = Depends(get_async_session)):
+    query = select(Client).filter(Client.name == name)
+    res = await session.execute(query)
+    return res.scalars().first()
+
+
 @app.post('/clients')
 async def create_new_user(new_client: ClientSchema, session: AsyncSession = Depends(get_async_session)):
+    existed_client = await get_client_by_name(new_client.name, session)
+    print(existed_client)
+    if existed_client:
+        raise HTTPException(status_code=400, detail="Клиент с таким именем уже существует")
     stmt = insert(Client).values(**new_client.dict())
     await session.execute(stmt)
     await session.commit()
@@ -21,8 +31,8 @@ async def create_new_user(new_client: ClientSchema, session: AsyncSession = Depe
 
 
 @app.get('/clients')
-async def get_all_clients(session: AsyncSession = Depends(get_async_session)):
-    query = select(Client)
+async def get_all_clients(limit: int = 10, offset: int = 0, session: AsyncSession = Depends(get_async_session)):
+    query = select(Client).limit(limit).offset(offset)
     res = await session.execute(query)
     return res.all()
 
@@ -41,7 +51,6 @@ async def get_client(client_id: int, session: AsyncSession = Depends(get_async_s
 
 @app.post('/transactions')
 async def add_transaction(client_id: int, amount: float, session: AsyncSession = Depends(get_async_session)):
-
     transaction = Transaction(client_id=client_id, amount=amount, status=TransactionStatus.QUEUED)
 
     session.add(transaction)
