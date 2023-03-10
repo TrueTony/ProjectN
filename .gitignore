@@ -1,0 +1,4 @@
+/venv/
+.idea
+/myapp/migrations/versions/
+/myapp/.env
