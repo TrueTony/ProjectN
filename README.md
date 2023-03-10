@@ -11,4 +11,4 @@
 Если баланс хватает для исполнения, баланс клиента изменяется, а статус транзакции меняется на "выполнена", иначе статус устанавливается "отклонена"
 
 ### Стек
-Python, FastAPI, SQLAlchemy, acynpg, alembic
+Python, FastAPI, SQLAlchemy, acynpg, alembic, postgresql
